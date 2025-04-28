@@ -17,10 +17,9 @@ This unified version merges Lucy IoT and Lucy NMS into a single Flask applicatio
 - Separate service and view layers
 
 ## Project Structure
+```
 Lucy-Monitoring/
-
 |├── app.py                  # Unified Flask entry point
-
 |├── services/                # Business logic modules
 |   |├── iot_service.py         # IoT mode backend logic
 |   └── nms_service.py         # NMS mode backend logic
@@ -36,6 +35,7 @@ Lucy-Monitoring/
 |├── requirements.txt        # Python dependencies
 |├── .env                    # Environment settings
 |└── README.md
+```
 
 ## Setup
 
