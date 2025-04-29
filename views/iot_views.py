@@ -9,13 +9,11 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-@iot_bp.route('/')
+@iot_bp.route('/', methods=['GET'])
 def iot_landing_page():
-    logging.info("-----------iot_landing in iot_views------")
     return iot_landing()
 
 
-@iot_bp.route('/home')
+@iot_bp.route('/home', methods=['GET', 'POST'])
 def iot_index_page():
-    logging.info("-----------iot_index in iot_views------")
     return iot_index()

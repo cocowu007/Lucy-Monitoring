@@ -254,14 +254,12 @@ def load_dashboards():
         return dashboards
 
 def iot_landing():
-    logging.info("-----------iot_landing------")
     get_danshboard()
     dashboards = load_dashboards()
     return render_template('landing.html', dashboards=dashboards, mode="iot")
 
 
 def iot_index():
-    logging.info("-----------iot_index------")
     with RestClientPE(base_url=TB_URL) as rest_client:
         rest_client.login(username=USERNAME, password=PASSWORD)
 
@@ -275,8 +273,9 @@ def iot_index():
             return render_template('index.html', room_devices=available_devices, mode="iot")
 
         if request.method == 'POST':
-            data = request.get_json()
-            query = data.get('query')
+            data = request.get_json()  # Parse JSON data
+            query = data.get('query')  # Extract the 'query' field
+            logging.info("Logged in as: %s", USERNAME)
 
             dashboard_id = session.get('dashboard_id')
             dashboard_id = DashboardId(id=dashboard_id, entity_type="DASHBOARD")
@@ -284,21 +283,40 @@ def iot_index():
             site_information = site_info(dashboard, rest_client)
 
             if not need_tb(query, site_information):
-                system_content = "You are Lucy, an IoT assistant."
-                answer = get_openai_response("gpt-4o-mini", system_content, query)
-                return jsonify({"response": answer})
-
+                # Simple query that doesn't need ThingsBoard data
+                system_content = "You are a LUCY, a helpful assistant for IoT (Internet of Things) monitoring."
+                generated_text = get_openai_response("gpt-4o-mini", system_content, query)
+                return jsonify({
+                    "response": generated_text,
+                })
+            
+            # Query needs ThingsBoard data
             dashboard_dict = dashboard.to_dict()
             entity_aliases = dashboard_dict.get("configuration", {}).get("entityAliases", {})
             alarm_info = get_alarm_information(rest_client)
             device_info, available_devices = get_devices_information(rest_client, entity_aliases, dashboard_dict)
 
             prompt = f"""
-            You are Lucy, an IoT monitoring assistant.
-            User Question: {query}
-            Devices: {device_info}
-            Alarms: {alarm_info}
+            You are Lucy, an IoT monitoring assistant specialized in analyzing device telemetry and alarms from a ThingsBoard instance.
+            Below is the user's question, some information about the device(s), and any relevant alarm states.
+            User Question:
+            {query}
+            Device Information and Readings:
+            {device_info}
+            Site Alarms:
+            {alarm_info}
+            Please provide your best answer to the user's question by relevant metrics and alarms if appropriate.
+            Keep the response within 5 sentences
             """
-            system_content = "You are Lucy, an IoT monitoring assistant."
-            answer = get_openai_response("gpt-4o-mini", system_content, prompt)
-            return jsonify({"response": answer, "devices": available_devices})
+            
+            system_content = "You are Lucy, an IoT monitoring assistant specialized in analyzing device telemetry and alarms from a ThingsBoard instance."
+            generated_text = get_openai_response("gpt-4o-mini", system_content, prompt)
+            
+            logging.info("Decision AI Answer: %s", generated_text)
+            
+            return jsonify({
+                "response": generated_text,
+                "devices": available_devices
+            })
+
+

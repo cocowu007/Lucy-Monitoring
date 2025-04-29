@@ -1,7 +1,11 @@
 import os, logging
 import requests
+import time
+from datetime import datetime
 import json
+from rapidfuzz import process
 import re
+from typing import Tuple
 import openai
 from flask import render_template, request, session, jsonify
 from dotenv import load_dotenv
@@ -16,13 +20,17 @@ logging.basicConfig(
 # ------------------ Config ------------------
 ZABBIX_API_TOKEN = os.getenv('ZABBIX_API_TOKEN')
 ZABBIX_URL = os.getenv('ZABBIX_URL')
-ZABBIX_HEADERS = {"Content-Type": "application/json-rpc"}
+ZABBIX_HEADERS = {
+    "Content-Type": "application/json-rpc"
+}
 
+# OpenAI API Configuration
 openai.api_type = os.getenv('OPENAI_API_TYPE')
 openai.azure_endpoint = os.getenv('OPENAI_AZURE_ENDPOINT')
 openai.api_key = os.getenv('OPENAI_API_KEY')
 openai.api_version = os.getenv('OPENAI_API_VERSION')
 
+# Country Dashboards Mapping
 DASHBOARDS = {
     "Nigeria": 130,
     "Afghanistan": 89,
@@ -38,7 +46,17 @@ DASHBOARDS = {
     "Haiti": 118
 }
 
-INFRASTRUCTURES = ["OneICTbox", "BE6K", "OpenDNS", "UPS", "MSS-3", "VSAT", "VPN", "VOIP"]
+# Infrastructure Types
+INFRASTRUCTURES = [
+    "OneICTbox",
+    "BE6K",
+    "OpenDNS",
+    "UPS",
+    "MSS-3",
+    "VSAT",
+    "AnyConnect-VPN",
+    "VOIP VSAT",
+]
 
 # ------------------ OpenAI ------------------
 def use_openai(system_content, user_content):

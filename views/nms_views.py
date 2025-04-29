@@ -9,13 +9,11 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-@nms_bp.route('/')
+@nms_bp.route('/', methods=['GET'])
 def nms_landing_page():
-    logging.info("-----------nms_landing in nms_views------")
     return nms_landing()
 
 
-@nms_bp.route('/home')
+@nms_bp.route('/home', methods=['GET', 'POST'])
 def nms_index_page():
-    logging.info("-----------nms_index in nms_views------")
     return nms_index()

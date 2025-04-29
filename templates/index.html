@@ -221,6 +221,9 @@
   </div>
 
   <script>
+    const mode = "{{ mode }}"; // render mode: 'iot' / 'nms'
+    const homeUrl = `/${mode}/home`;
+
     async function sendMessage() {
       const queryInput = document.getElementById('query');
       const chatBox = document.getElementById('chat-box');
@@ -239,7 +242,7 @@
 
       try {
         // Send to Flask backend
-        const response = await fetch('/home', {
+        const response = await fetch(homeUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: userMessage }),
